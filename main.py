@@ -2,15 +2,24 @@
 """
 Telegram bot for managing school canteen (experiment)
 """
+PROG = "broccoli"
+DESCRIPTION = "ERP system for school canteen"
+
 # from logging import info, error
 from argparse import ArgumentParser
+from configparser import ConfigParser
 from bcrypt import hashpw  # gensalt
 from aiogram import Bot, Dispatcher, executor, types
 
 
-program_data = {"prog": "broccoli",
-                "description": "ERP system for school canteen"}
-parser = ArgumentParser(**program_data)
+def load_configuration(filename: str) -> ConfigParser:
+    """Load configuration && return it"""
+    config = ConfigParser()
+    config.read(filename)
+    return config
+
+
+parser = ArgumentParser(prog=PROG, description=DESCRIPTION)
 parser.add_argument('token')
 args = parser.parse_args()
 TOKEN = args.token
