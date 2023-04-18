@@ -2,7 +2,7 @@
 Code in this file is handling postgres database connection
 """
 import os
-from psycopg2 import connect
+from psycopg2 import connect, ProgrammingError
 
 
 class DatabaseConnection:
@@ -21,11 +21,11 @@ class DatabaseConnection:
         result = None
         cursor = self.connection.cursor()
         if data:
-            if isinstance(data, dict):
-                cursor.execute(query, **data)
-            else:
-                cursor.execute(query, data)
-            result = cursor.fetchall()
+            cursor.execute(query, data)
+            try:
+                result = cursor.fetchall()
+            except ProgrammingError:
+                result = []
         else:
             cursor.execute(query)
         self.connection.commit()
@@ -84,7 +84,7 @@ def load_queries() -> QueriesManager:
     """add all SQL queries from `queries` directory to QueriesManager"""
     base_path = "database/queries/"
     manager = QueriesManager()
-    for root, dirs, files in os.walk(base_path):
+    for root, _, files in os.walk(base_path):
         for name in files:
             nice_name = name.split(".")[0]
             manager[nice_name] = os.path.join(root, name)

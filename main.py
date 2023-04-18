@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-"""
-Telegram bot for managing school canteen (experiment)
-"""
+"""Experimental telegram bot for managing school canteen"""
 from argparse import ArgumentParser
 from bcrypt import hashpw  # gensalt
 from aiogram import Bot, Dispatcher, executor, types
-from database import QueriesManager, DatabaseConnection, load_queries
-from functions import get_message, load_configuration
+from database import DatabaseConnection, load_queries
+from functions import load_configuration, get_reply_content
 # from logging import info, error
 PROG = "broccoli_bot"
 DESCRIPTION = "ERP system for school canteen"
@@ -23,7 +21,7 @@ def check_new_user(database_connection: DatabaseConnection, userid: int) -> bool
     return True
 
 
-context_storage = {"waiting_for_username": False,}
+context_storage = {"waiting_for_username": [],}
 parser = ArgumentParser(prog=PROG, description=DESCRIPTION)
 parser.add_argument('token')
 args = parser.parse_args()
@@ -53,11 +51,12 @@ async def help_command(message: types.Message):
     query = queries_manager["select_user_lang"]
     result = db_connection.execute_query(query, (user_id,))
     if len(result) == 0:
-        output = message_storage["en"]["help"]
+        output = get_reply_content(message_storage, "en", "help")
     else:
         current_language = result[0]
-        output = message_storage[current_language]["help"]
-    await message.reply(text=output)
+        output = get_reply_content(message_storage, current_language, "help")
+    await bot.send_message(chat_id=message.from_user.id, text=output)
+    await message.delete()
 
 
 @dispatcher.message_handler(commands=["lang", "язык"])
@@ -68,17 +67,19 @@ async def set_lang(message: types.Message):
     query = queries_manager["select_user_lang"]
     current_language = db_connection.execute_query(query, (user_id,))
     if len(contents) != 2:
-        reply_message_name = current_language + "_" + "_wrong_message"
-        reply_content = get_message(reply_message_name)
-        await message.reply(reply_content)
+        reply_data = (message_storage, current_language, "wrong_message")
+        reply_content = get_reply_content(*reply_data)
+        reply_content = message_storage[current_language]["ask_for_username"]
+        context_storage["waiting_for_username"].append(user_id)
     else:
         lang = contents[1]
         data = {"userid": user_id, "lang": lang}
         query = queries_manager["update_user_lang"]
         db_connection.execute_query(query, data)
-        reply_message_name = lang + "_" + "update_language"
-        reply_content = get_message(reply_message_name)
-        await message.reply(reply_content)
+        reply_data = [message_storage, lang, "update_language"]
+        reply_content = get_reply_content(*reply_data)
+    await bot.send_message(chat_id=message.from_user.id, text=reply_content)
+    await message.delete()
 
 
 @dispatcher.message_handler(commands=["start", "старт"])
@@ -86,15 +87,37 @@ async def login(message: types.Message):
     """Login into system"""
     user_id = int(message.from_user.id)
     is_in_database = check_new_user(db_connection, user_id)
-    if is_in_database:
-        await message.reply("in_database")
+    query = queries_manager["select_user_lang"]
+    current_language = db_connection.execute_query(query, (user_id,))
+    if not current_language:
+        current_language = "en"
+        data = {"userid": user_id, "lang": "en"}
+        query = queries_manager["update_user_lang"]
+        db_connection.execute_query(query, data)
+        reply = get_reply_content(message_storage, "en", "update_language")
+        await message.reply(reply)
     else:
-        await message.reply("not in database yet")
-        await message.reply("please, send me username.")
+        current_language = current_language[0][0]
+    if is_in_database:
+        reply_data = [message_storage, current_language]
+        reply_data.append("user_exists_in_database")
+        reply_content = get_reply_content(*reply_data)
+        await bot.send_message(chat_id=message.from_user.id, text=reply_content)
+    else:
+        reply_data = [message_storage, current_language]
+        reply_data.append("user_not_exists_in_database")
+        reply_content = get_reply_content(*reply_data)
+        await bot.send_message(chat_id=message.from_user.id, text=reply_content)
+        reply_data = [message_storage, current_language, "ask_for_username"]
+        reply_content = get_reply_content(*reply_data)
+        context_storage["waiting_for_username"].append(user_id)
+        await bot.send_message(chat_id=message.from_user.id, text=reply_content)
+    await message.delete()
 
 
+# TODO
 @dispatcher.message_handler(commands=["order", "заказать"])
-async def login(message: types.Message):
+async def order(message: types.Message):
     """order dishes"""
     user_id = message.from_user.id
     contents = message.text.split()
@@ -107,19 +130,44 @@ async def add_user(message: types.Message):
 
 
 @dispatcher.message_handler()
-async def ping(message: types.Message):
-    """ping-pong function"""
-    if message.text == "ping":
-        await message.reply(text="pong")
-    elif message.text == "PING":
-        await message.reply(text="PONG")
+async def other(message: types.Message):
+    """
+    control non-commands messages:
+    - ping feature
 
+    """
+    current_user_id = message.from_user.id
+    contents = message.text
+    match message.text.lower():
+        case "ping" | "PING" | "пинг" | "ПИНГ":
+            data = [contents]
+            if contents == "ping":
+                data.extend(["en", "pong_small"])
+                result = get_reply_content(*data)
+            elif contents == "PING":
+                data.extend(["en", "pong_large"])
+                result = get_reply_content(*data)
+            elif contents == "пинг":
+                data.extend(["ru", "pong_small"])
+                result = get_reply_content(*data)
+            elif contents == "ПИНГ":
+                data.extend(["ru", "pong_large"])
+                result = get_reply_content(*data)
+            await message.reply(text=result)
 
-@dispatcher.message_handler()
-async def turn(message: types.Message):
-    """mirror sent message"""
-    await message.reply(message.text)
-
+        case _:
+            username_requests = context_storage["waiting_for_username"]
+            if current_user_id in username_requests:
+                data = {"userid": current_user_id, "username": message.text}
+                data["lang"] = "en"
+                query = queries_manager["add_user"]
+                db_connection.execute_query(query, data)
+                reply_data = [message_storage, "en", "username_accepted"]
+                reply_content = get_reply_content(*reply_data)
+                user_chat = message.from_user.id
+                await bot.send_message(chat_id=user_chat, text=reply_content)
+            else:
+                await message.reply(contents)
 
 
 if __name__ == "__main__":

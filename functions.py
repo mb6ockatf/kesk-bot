@@ -11,3 +11,9 @@ def load_configuration(filename: str) -> ConfigParser:
     configuration.read(filename)
     return configuration
 
+
+def get_reply_content(storage: ConfigParser, lang: str, message: str) -> str:
+    "get a message from messages.ini file"
+    reply = storage[lang][message]
+    reply = reply.strip('"')
+    return reply
