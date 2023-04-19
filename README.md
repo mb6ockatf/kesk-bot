@@ -1,4 +1,4 @@
-# broccoli
+# KEKS
 ERP system for school canteen
 
 Telegram bot written on Python aiogram library
