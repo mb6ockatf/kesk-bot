@@ -1,7 +1,6 @@
 """
 Code in this file is handling postgres database connection
 """
-import os
 from psycopg2 import connect, ProgrammingError
 
 
@@ -78,4 +77,3 @@ class QueriesManager:
             result.append(buffer)
         result = "\n".join(result)
         return result
-
