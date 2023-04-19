@@ -1,0 +1,2 @@
+aiogram
+psycopg2
