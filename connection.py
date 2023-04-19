@@ -22,12 +22,12 @@ class DatabaseConnection:
         cursor = self.connection.cursor()
         if data:
             cursor.execute(query, data)
-            try:
-                result = cursor.fetchall()
-            except ProgrammingError:
-                result = []
         else:
             cursor.execute(query)
+        try:
+            result = cursor.fetchall()
+        except ProgrammingError:
+            result = []
         self.connection.commit()
         cursor.close()
         return result
@@ -79,13 +79,3 @@ class QueriesManager:
         result = "\n".join(result)
         return result
 
-
-def load_queries() -> QueriesManager:
-    """add all SQL queries from `queries` directory to QueriesManager"""
-    base_path = "database/queries/"
-    manager = QueriesManager()
-    for root, _, files in os.walk(base_path):
-        for name in files:
-            nice_name = name.split(".")[0]
-            manager[nice_name] = os.path.join(root, name)
-    return manager
