@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Experimental telegram bot for managing school canteen"""
 from argparse import ArgumentParser
 from aiogram import Bot, Dispatcher, executor, types
 from connection import DatabaseConnection
@@ -12,19 +11,13 @@ DB_TABLES = ["roles_table", "market_table", "users_table", "orders_table"]
 
 def check_new_user(database_connection: DatabaseConnection,
                    userid: int) -> bool:
-    """
-    Checks if user with given id is in database, and returns result as bool
-    """
     query = queries_manager["users"]["select_user"]
-    data = {"userid": int(userid),}
+    data = {"userid": int(userid), }
     result = database_connection.execute_query(query, data)
-    if len(result) == 0:
-        return False
-    return True
+    return False if len(result) == 0 else True
 
 
 def get_language_by_id(user_id: int):
-    """return user's selected language"""
     query = queries_manager["users"]["select_user_lang"]
     data = (user_id,)
     result = db_connection.execute_query(query, data)
@@ -59,13 +52,11 @@ db_connection.execute_query(query, data)
 
 
 async def startup_notification(_):
-    """print startup message to stdin"""
     print("\nBot has been launched\n")
 
 
 @dispatcher.message_handler(commands=["help", "помощь"])
 async def help_command(message: types.Message):
-    """reply with help message"""
     user_id = int(message.from_user.id)
     current_language = get_language_by_id(user_id)
     if not current_language:
@@ -77,7 +68,6 @@ async def help_command(message: types.Message):
 
 @dispatcher.message_handler(commands=["lang", "язык"])
 async def set_lang(message: types.Message):
-    """update user's language"""
     user_id = int(message.from_user.id)
     contents = message.text.split()
     current_language = get_language_by_id(user_id)
@@ -98,7 +88,6 @@ async def set_lang(message: types.Message):
 
 @dispatcher.message_handler(commands=["start", "старт"])
 async def login(message: types.Message):
-    """Login into system"""
     user_id = int(message.from_user.id)
     is_in_database = check_new_user(db_connection, user_id)
     current_language = get_language_by_id(user_id)
@@ -129,13 +118,8 @@ async def login(message: types.Message):
     await message.delete()
 
 
-# TODO
 @dispatcher.message_handler(commands=["order", "заказать"])
 async def order(message: types.Message):
-    """
-    order dishes
-    message format: `/order dishname quantity`
-    """
     user_id = message.from_user.id
     contents = message.text.split()
     current_language = get_language_by_id(user_id)[0]
@@ -176,10 +160,6 @@ async def order(message: types.Message):
 
 @dispatcher.message_handler(commands=["confirm", "подтвердить"])
 async def confirm(message: types.Message):
-    """
-    confirm completing an order of selected username
-    message format: `/confirm username`
-    """
     user_id = message.from_user.id
     contents = message.text.split()
     current_language = get_language_by_id(user_id)
@@ -206,10 +186,6 @@ async def confirm(message: types.Message):
 
 @dispatcher.message_handler(commands=["addish", "добавить", "разместить"])
 async def place(message: types.Message):
-    """
-    place new dish if you're a cook or admin
-    message format: `/addish dishname price quantity`
-    """
     user_id = message.from_user.id
     contents = message.text.split()
     current_language = get_language_by_id(user_id)[0]
@@ -242,9 +218,9 @@ async def place(message: types.Message):
     reply_contents = get_reply_content(*reply_data)
     await bot.send_message(chat_id=user_id, text=reply_contents)
 
+
 @dispatcher.message_handler(commands=["menu", "меню"])
 async def menu(message: types.Message):
-    """send list of available dishes and their price & quantity"""
     user_id = message.from_user.id
     message = []
     query = queries_manager["market"]["select_dishes"]
@@ -258,10 +234,6 @@ async def menu(message: types.Message):
 
 @dispatcher.message_handler(commands=["addrole"])
 async def add_user(message: types.Message):
-    """
-    add new user into system.
-    required format is `/addrole userid role`
-    """
     user_id = message.from_user.id
     contents = message.text.split()
     current_language = get_language_by_id(user_id)[0]
@@ -303,7 +275,6 @@ async def add_user(message: types.Message):
 
 @dispatcher.message_handler(commands=["username"])
 async def other(message: types.Message):
-    """add username"""
     current_user_id = message.from_user.id
     contents = message.text.split()[1]
     username_requests = context_storage["waiting_for_username"]
