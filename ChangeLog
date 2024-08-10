@@ -1,0 +1,149 @@
+commit 6993b76bfa1be7356eaecd3a2dd808ec55440c40
+Author: mb6ockatf <mdddmmmm@yandex.ru>
+Date:   Sat Aug 10 16:02:52 2024 +0300
+
+    chore(CONTRIBUTING): added
+
+commit 689c10483e3acd2f2a4ebd4c1ed603a172b06d2d
+Author: mb6ockatf <mdddmmmm@yandex.ru>
+Date:   Fri Aug 9 21:07:30 2024 +0300
+
+    chore(COPYING): AGPL
+
+commit f9fcf2efc5c47629b691fb490679a80e55fe0c93
+Author: Walter White <mdddmmmm@yandex.ru>
+Date:   Thu Mar 21 18:59:10 2024 +0300
+
+    Create .gitattributes
+
+commit 96205386ebca70926e8f5970221176417c0c463c
+Author: mb6ockatf <mb6ockatf@relay.firefox.com>
+Date:   Sat Apr 29 23:02:11 2023 +0300
+
+    refactor
+
+commit 59be879ee32850c12dbcadd934a2451fae5973e3
+Author: mb6ockatf <mdddmmmm@yandex.ru>
+Date:   Sat Apr 29 22:55:12 2023 +0300
+
+    development (#5)
+    
+    * add: ping-pong functionality
+    
+    * add: sql table schemes
+    
+    * feat(config.ini): add postgresql section
+    
+    * add: load_configuration function
+    
+    * add: more sql queries
+    
+    * add(config.ini): debug option
+    
+    * chore: add psycopg2 to requirements.txt
+    
+    * add: database connector
+    
+    * style: create functions.py
+    
+    * chores: create messages file
+    
+    * update main file
+    
+    * feat(test.sh): clear screen before run
+    
+    * fix(sql queries): fix small things
+    
+    - fix values name in INSERT query
+    - fix column type in users table
+    
+    * fix(sql queries): fix small things
+    
+    - fix values name in INSERT query
+    - fix column type in users table
+    
+    * feat: language change, messages
+    
+    * changes
+    
+    * fix(stuff):
+    
+    * debug!!!
+    
+    * update readmes
+    
+    * update repository name
+
+commit 839503777e19b7d74c1ec271db85f830c25edcda
+Author: mb6ockatf <mdddmmmm@yandex.ru>
+Date:   Fri Apr 28 22:49:03 2023 +0300
+
+    Create CODE_OF_CONDUCT.md (#1)
+
+commit a4586cf7788467dccf520e2aaf281a8b8beb2706
+Author: mb6ockatf <mdddmmmm@yandex.ru>
+Date:   Wed Apr 19 13:46:13 2023 +0300
+
+    Update README.md (#4)
+
+commit dfa9598b1d5de2a9ce8e5c57f554281d4e378970
+Author: mb6ockatf <mdddmmmm@yandex.ru>
+Date:   Wed Apr 19 13:45:50 2023 +0300
+
+    Update README_RU.md (#3)
+
+commit f67368ccff9725a3563ac9d08d0e046458faf19a
+Author: mb6ockatf <mdddmmmm@yandex.ru>
+Date:   Wed Apr 19 13:33:45 2023 +0300
+
+    v0.0.4 (#2)
+    
+    * add: ping-pong functionality
+    
+    * add: sql table schemes
+    
+    * feat(config.ini): add postgresql section
+    
+    * add: load_configuration function
+    
+    * add: more sql queries
+    
+    * add(config.ini): debug option
+    
+    * chore: add psycopg2 to requirements.txt
+    
+    * add: database connector
+    
+    * style: create functions.py
+    
+    * chores: create messages file
+    
+    * update main file
+    
+    * feat(test.sh): clear screen before run
+    
+    * fix(sql queries): fix small things
+    
+    - fix values name in INSERT query
+    - fix column type in users table
+    
+    * fix(sql queries): fix small things
+    
+    - fix values name in INSERT query
+    - fix column type in users table
+    
+    * feat: language change, messages
+    
+    * changes
+    
+    * fix(stuff):
+    
+    * debug!!!
+    
+    * update readmes
+
+commit 253d858f04db66dd1263a1129900a1fe8f626f7d
+Author: mb6ockatf <mdddmmmm@yandex.ru>
+Date:   Tue Apr 18 00:03:11 2023 +0300
+
+    Initial commit
